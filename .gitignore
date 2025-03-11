@@ -1,0 +1,36 @@
+# Python编译文件
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 日志文件
+*.log
+logs/
+log/
+
+# IDE配置文件
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 环境文件
+.env
+venv/
+env/
+.python-version
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 测试覆盖率报告
+.coverage
+htmlcov/
+
+# 构建和分发
+dist/
+build/
+*.egg-info/ 
+
+output/
