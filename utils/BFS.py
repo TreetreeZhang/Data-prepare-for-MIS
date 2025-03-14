@@ -149,7 +149,7 @@ if __name__ == '__main__':
     # 获取脚本所在的绝对路径
     current_dir = os.path.dirname(os.path.abspath(__file__))
     # 构建输入文件夹的绝对路径
-    input_folder = os.path.join(current_dir, '..', 'TestInstances', 'once')
+    input_folder = os.path.join(current_dir, '..', 'TestInstances', 'n15')
     
     code_name = 'BFS'
     num_run = log_run(code_name=code_name)

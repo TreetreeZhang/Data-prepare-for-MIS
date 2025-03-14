@@ -22,4 +22,4 @@ def convert_txt_json(input_folder, output_folder):
 
 if __name__ == '__main__':
     # 使用示例
-    convert_txt_json('../TestInstances/txt', '../TestInstances/json')
+    convert_txt_json('/home/chaorui.zhang/vscode/personal/MIS/Data-prepare-for-MIS/TestInstances/txt', '/home/chaorui.zhang/vscode/personal/MIS/Data-prepare-for-MIS/TestInstances/json')

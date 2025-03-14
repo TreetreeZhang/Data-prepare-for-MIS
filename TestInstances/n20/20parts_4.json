@@ -1,0 +1,300 @@
+{
+    "machines": [
+        {
+            "machine_id": 1,
+            "num_machine": 1,
+            "V": 0.030864,
+            "U": 0.7,
+            "S": 2.0,
+            "L": 15.0,
+            "W": 15.0,
+            "H": 32.5
+        }
+    ],
+    "parts": [
+        {
+            "part_id": 1,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 79.0,
+            "orientations": [
+                {
+                    "l": 12.0,
+                    "w": 1.5,
+                    "h": 5.6,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 2,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 38.0,
+            "orientations": [
+                {
+                    "l": 8.0,
+                    "w": 6.5,
+                    "h": 7.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 3,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 30.0,
+            "orientations": [
+                {
+                    "l": 7.0,
+                    "w": 5.0,
+                    "h": 2.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 4,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 60.0,
+            "orientations": [
+                {
+                    "l": 7.0,
+                    "w": 7.0,
+                    "h": 3.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 5,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 76.5,
+            "orientations": [
+                {
+                    "l": 12.5,
+                    "w": 12.5,
+                    "h": 8.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 6,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 21.7,
+            "orientations": [
+                {
+                    "l": 8.35,
+                    "w": 8.35,
+                    "h": 5.35,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 7,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 304.0,
+            "orientations": [
+                {
+                    "l": 10.0,
+                    "w": 8.0,
+                    "h": 14.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 8,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 50.0,
+            "orientations": [
+                {
+                    "l": 11.0,
+                    "w": 3.0,
+                    "h": 4.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 9,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 150.0,
+            "orientations": [
+                {
+                    "l": 10.0,
+                    "w": 6.0,
+                    "h": 8.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 10,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 9.6,
+            "orientations": [
+                {
+                    "l": 6.25,
+                    "w": 6.25,
+                    "h": 4.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 11,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 90.0,
+            "orientations": [
+                {
+                    "l": 5.0,
+                    "w": 4.8,
+                    "h": 5.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 12,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 140.0,
+            "orientations": [
+                {
+                    "l": 8.0,
+                    "w": 4.0,
+                    "h": 7.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 13,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 76.0,
+            "orientations": [
+                {
+                    "l": 10.0,
+                    "w": 9.0,
+                    "h": 7.6,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 14,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 140.0,
+            "orientations": [
+                {
+                    "l": 8.0,
+                    "w": 4.0,
+                    "h": 7.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 15,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 98.0,
+            "orientations": [
+                {
+                    "l": 5.0,
+                    "w": 4.0,
+                    "h": 7.6,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 16,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 30.0,
+            "orientations": [
+                {
+                    "l": 5.0,
+                    "w": 4.0,
+                    "h": 2.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 17,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 76.5,
+            "orientations": [
+                {
+                    "l": 12.5,
+                    "w": 12.5,
+                    "h": 8.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 18,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 15.0,
+            "orientations": [
+                {
+                    "l": 6.0,
+                    "w": 3.0,
+                    "h": 1.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 19,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 45.0,
+            "orientations": [
+                {
+                    "l": 7.0,
+                    "w": 6.5,
+                    "h": 2.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 20,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 30.0,
+            "orientations": [
+                {
+                    "l": 7.0,
+                    "w": 5.0,
+                    "h": 2.0,
+                    "support": 0.0
+                }
+            ]
+        }
+    ],
+    "types_machine": 1,
+    "types_parts": 20,
+    "num_machine": 1,
+    "num_parts": 20
+}
