@@ -1,0 +1,172 @@
+{
+    "machines": [
+        {
+            "machine_id": 1,
+            "num_machine": 1,
+            "V": 0.030864,
+            "U": 0.25,
+            "S": 1.0,
+            "L": 80.0,
+            "W": 40.0,
+            "H": 50.0
+        },
+        {
+            "machine_id": 2,
+            "num_machine": 1,
+            "V": 0.030864,
+            "U": 0.7,
+            "S": 2.0,
+            "L": 25.0,
+            "W": 25.0,
+            "H": 32.5
+        }
+    ],
+    "parts": [
+        {
+            "part_id": 1,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 340.0,
+            "orientations": [
+                {
+                    "l": 8.0,
+                    "w": 8.0,
+                    "h": 8.0,
+                    "support": 160.0
+                }
+            ]
+        },
+        {
+            "part_id": 2,
+            "num_part": 1,
+            "num_orientation": 1,
+            "volume": 30.0,
+            "orientations": [
+                {
+                    "l": 10.0,
+                    "w": 4.0,
+                    "h": 1.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 3,
+            "num_part": 1,
+            "num_orientation": 2,
+            "volume": 92.0,
+            "orientations": [
+                {
+                    "l": 4.2,
+                    "w": 5.0,
+                    "h": 5.0,
+                    "support": 12.0
+                },
+                {
+                    "l": 5.0,
+                    "w": 5.0,
+                    "h": 4.2,
+                    "support": 15.0
+                }
+            ]
+        },
+        {
+            "part_id": 4,
+            "num_part": 1,
+            "num_orientation": 2,
+            "volume": 103.68,
+            "orientations": [
+                {
+                    "l": 8.4,
+                    "w": 8.4,
+                    "h": 2.88,
+                    "support": 9.7
+                },
+                {
+                    "l": 8.4,
+                    "w": 2.88,
+                    "h": 8.4,
+                    "support": 20.7
+                }
+            ]
+        },
+        {
+            "part_id": 5,
+            "num_part": 1,
+            "num_orientation": 2,
+            "volume": 75.0,
+            "orientations": [
+                {
+                    "l": 8.0,
+                    "w": 8.0,
+                    "h": 5.0,
+                    "support": 5.7
+                },
+                {
+                    "l": 8.0,
+                    "w": 5.0,
+                    "h": 8.0,
+                    "support": 10.1
+                }
+            ]
+        },
+        {
+            "part_id": 6,
+            "num_part": 2,
+            "num_orientation": 2,
+            "volume": 30.0,
+            "orientations": [
+                {
+                    "l": 5.0,
+                    "w": 4.0,
+                    "h": 2.0,
+                    "support": 8.0
+                },
+                {
+                    "l": 5.0,
+                    "w": 2.0,
+                    "h": 4.0,
+                    "support": 0.0
+                }
+            ]
+        },
+        {
+            "part_id": 7,
+            "num_part": 1,
+            "num_orientation": 2,
+            "volume": 70.0,
+            "orientations": [
+                {
+                    "l": 3.0,
+                    "w": 5.0,
+                    "h": 7.0,
+                    "support": 12.0
+                },
+                {
+                    "l": 7.0,
+                    "w": 5.0,
+                    "h": 3.0,
+                    "support": 15.0
+                }
+            ]
+        },
+        {
+            "part_id": 8,
+            "num_part": 2,
+            "num_orientation": 1,
+            "volume": 200.0,
+            "orientations": [
+                {
+                    "l": 10.0,
+                    "w": 10.0,
+                    "h": 6.0,
+                    "support": 20.0
+                }
+            ]
+        }
+    ],
+    "types_machine": 2,
+    "types_parts": 8,
+    "num_machine": 2,
+    "num_parts": 10
+}
