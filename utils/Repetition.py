@@ -1,5 +1,6 @@
 import itertools
 import time
+import argparse
 
 from FeasibilityCheck import *
 from Logcount import log_run
@@ -36,7 +37,7 @@ def load_previous_log(machine_dir):
     return {}, log_path
 
 
-def Check_grid_Feasibility(input_folder, num_run):
+def Check_grid_Feasibility(input_folder, num_run, solver='grid'):
     for file_name in os.listdir(input_folder):
         check_start_time = time.time()
         print(file_name)
@@ -110,9 +111,16 @@ def Check_grid_Feasibility(input_folder, num_run):
                                 # 如果没有被剪枝，则继续求解
                                 start_time = time.time()
 
-                                # 可行性检查
-                                IsFeasible, PackingSol = check_feasi(L, W, grid_size,
-                                                                     [bins_info[key] for key in combination])
+                                # 可行性检查（由命令行开关控制求解器）
+                                s = str(solver).lower()
+                                if s == 'interval':
+                                    solver_fn = check_feasi_interval
+                                elif s == 'disjunctive':
+                                    solver_fn = check_feasi_disjunctive
+                                else:
+                                    solver_fn = check_feasi
+                                IsFeasible, PackingSol = solver_fn(L, W, grid_size,
+                                                                   [bins_info[key] for key in combination])
 
                                 end_time = time.time()
                                 elapsed_time = end_time - start_time
@@ -158,9 +166,13 @@ def Check_grid_Feasibility(input_folder, num_run):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Repetition feasibility checker')
+    parser.add_argument('--solver', choices=['grid', 'interval', 'disjunctive'], default='grid', help='Choose solver: grid, interval, or disjunctive')
+    parser.add_argument('--instances', nargs='+', default=['10', '15', 'inst', '20'], help='List of subfolders under TestInstances')
+    args = parser.parse_args()
 
     code_name = 'repetition'
     num_run = log_run(code_name='repetition')
-    for instance_name in ['10', '15', 'inst', '20']:
+    for instance_name in args.instances:
         input_folder = f'../TestInstances/{instance_name}'
-        Check_grid_Feasibility(input_folder, num_run=num_run)
+        Check_grid_Feasibility(input_folder, num_run=num_run, solver=args.solver)

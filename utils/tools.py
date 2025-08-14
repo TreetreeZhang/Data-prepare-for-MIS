@@ -195,12 +195,14 @@ def calculate_resolution(L, W):
     return resolution_list
 
 
-def Check_grid_Feasibility_parallel(input_folder, task_name, num_run):
+def Check_grid_Feasibility_parallel(input_folder, task_name, num_run, extra_args=None):
     # 获取文件列表
     files = os.listdir(input_folder)
     # 创建任务列表，确保包含所有必需的参数
-    tasks = [(file, num_run, input_folder) for file in files]
-    
+    if extra_args is None:
+        extra_args = ()
+    tasks = [(file, num_run, input_folder, *extra_args) for file in files]
+
     # 使用进程池并行处理
     with Pool() as pool:
         pool.starmap(task_name, tasks)

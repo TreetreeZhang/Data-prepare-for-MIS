@@ -1,4 +1,5 @@
 import time
+import argparse
 
 from FeasibilityCheck import *
 from Logcount import log_run
@@ -38,7 +39,7 @@ def dfs_combinations(bins_info, current_combination, index, all_combinations):
     current_combination.pop()  # 回溯
 
 
-def Check_DFS(file_name, num_run, input_folder='../TestInstances/json', code_name='DFS'):
+def Check_DFS(file_name, num_run, input_folder='../TestInstances/json', solver='grid', code_name='DFS'):
     print(file_name)
     if file_name.endswith('.json'):
         input_json_path = os.path.join(input_folder, file_name)
@@ -123,8 +124,15 @@ def Check_DFS(file_name, num_run, input_folder='../TestInstances/json', code_nam
                         # 如果没有被剪枝，则继续求解
                         start_time = time.time()
 
-                        # 可行性检查
-                        IsFeasible, PackingSol = check_feasi(L, W, grid_size, [bins_info[key] for key in combination])
+                        # 可行性检查（由命令行开关控制求解器）
+                        s = str(solver).lower()
+                        if s == 'interval':
+                            solver_fn = check_feasi_interval
+                        elif s == 'disjunctive':
+                            solver_fn = check_feasi_disjunctive
+                        else:
+                            solver_fn = check_feasi
+                        IsFeasible, PackingSol = solver_fn(L, W, grid_size, [bins_info[key] for key in combination])
 
                         end_time = time.time()
                         elapsed_time = end_time - start_time
@@ -166,8 +174,13 @@ def Check_DFS(file_name, num_run, input_folder='../TestInstances/json', code_nam
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='DFS feasibility checker')
+    parser.add_argument('--solver', choices=['grid', 'interval', 'disjunctive'], default='grid', help='Choose solver: grid, interval, or disjunctive')
+    parser.add_argument('--instances', default='10', help='TestInstances subfolder name (e.g., 10, n15, n20)')
+    args = parser.parse_args()
+
     code_name = 'DFS'
     num_run = log_run(code_name=code_name)
-    input_folder = '../TestInstances/10'
-    Check_grid_Feasibility_parallel(input_folder, task_name=Check_DFS, num_run=num_run)
+    input_folder = f'../TestInstances/{args.instances}'
+    Check_grid_Feasibility_parallel(input_folder, task_name=Check_DFS, num_run=num_run, extra_args=(args.solver,))
     print("ALL THE CALCULATION HAVE BEEN FINISHED")

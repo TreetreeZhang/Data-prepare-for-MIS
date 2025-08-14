@@ -2,6 +2,7 @@ import itertools
 import time
 import os
 import json
+import argparse
 
 from FeasibilityCheck import *
 from Logcount import log_run
@@ -19,7 +20,7 @@ def load_previous_log(machine_dir):
     return {}, log_path
 
 
-def Check_BFS(file_name, num_run, input_folder, code_name='BFS'):
+def Check_BFS(file_name, num_run, input_folder, solver='grid', code_name='BFS'):
     print(file_name)
     if file_name.endswith('.json'):
         input_json_path = os.path.join(input_folder, file_name)
@@ -102,9 +103,16 @@ def Check_BFS(file_name, num_run, input_folder, code_name='BFS'):
                             # 如果没有被剪枝，则继续求解
                             start_time = time.time()
 
-                            # 可行性检查
-                            IsFeasible, PackingSol = check_feasi(L, W, grid_size,
-                                                                 [bins_info[key] for key in combination])
+                            # 可行性检查（由命令行开关控制求解器）
+                            s = str(solver).lower()
+                            if s == 'interval':
+                                solver_fn = check_feasi_interval
+                            elif s == 'disjunctive':
+                                solver_fn = check_feasi_disjunctive
+                            else:
+                                solver_fn = check_feasi
+                            IsFeasible, PackingSol = solver_fn(L, W, grid_size,
+                                                               [bins_info[key] for key in combination])
 
                             end_time = time.time()
                             elapsed_time = end_time - start_time
@@ -146,12 +154,17 @@ def Check_BFS(file_name, num_run, input_folder, code_name='BFS'):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='BFS feasibility checker')
+    parser.add_argument('--solver', choices=['grid', 'interval', 'disjunctive'], default='grid', help='Choose solver: grid, interval, or disjunctive')
+    parser.add_argument('--instances', default='n15', help='TestInstances subfolder name (e.g., n15, n20)')
+    args = parser.parse_args()
+
     # 获取脚本所在的绝对路径
     current_dir = os.path.dirname(os.path.abspath(__file__))
     # 构建输入文件夹的绝对路径
-    input_folder = os.path.join(current_dir, '..', 'TestInstances', 'n15')
-    
+    input_folder = os.path.join(current_dir, '..', 'TestInstances', args.instances)
+
     code_name = 'BFS'
     num_run = log_run(code_name=code_name)
-    Check_grid_Feasibility_parallel(input_folder, task_name=Check_BFS, num_run=num_run)
+    Check_grid_Feasibility_parallel(input_folder, task_name=Check_BFS, num_run=num_run, extra_args=(args.solver,))
     print("ALL THE CALCULATION HAVE BEEN FINISHED")
