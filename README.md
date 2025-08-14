@@ -120,6 +120,3 @@ python /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/main.py solve \
 - 大实例耗时可观，建议先在 `n15` 小规模数据上验证。
 - 并行度可通过 `--processes` 参数控制。
 
-### 8. 致谢
-区间+NoOverlap2D 的思路已抽象为 `check_feasi_interval` 并集成到当前框架，使用时仅需通过 `--solver interval` 选择该模型。
-
