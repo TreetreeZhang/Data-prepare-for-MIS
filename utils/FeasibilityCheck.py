@@ -10,6 +10,8 @@ import math
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from ortools.sat.python import cp_model
+from decimal import Decimal
+from typing import List, Tuple
 
 
 class Dot:
@@ -338,6 +340,187 @@ def check_feasi(L, W, grid_size, bins):
         #     f.write(f"IsFeasible: {IsFeasible},\t")
         #     f.write(f"PackingSol: {PackingSol},\t")
         #     f.write('\n')
+
+    return IsFeasible, PackingSol
+
+
+def _compute_scale_factor(values: List[float]) -> int:
+    """Compute 10^k to scale all floats to integers for CP-SAT.
+
+    Picks k as the maximum number of decimal places across values.
+    """
+    max_places = 0
+    for value in values:
+        dec = Decimal(str(value)).normalize()
+        places = -dec.as_tuple().exponent if dec.as_tuple().exponent < 0 else 0
+        if places > max_places:
+            max_places = places
+    return 10 ** max_places
+
+
+def check_feasi_interval(L: float, W: float, grid_size: float, bins: List[Tuple[float, float]]):
+    """
+    Interval-based feasibility check using CP-SAT NoOverlap2D with optional rotation.
+
+    - Keeps the same output format as check_feasi: (IsFeasible: bool, PackingSol: Dict[int, List[float]])
+    - Accepts the same signature, but ignores grid_size for modeling (still returned unmodified by callers).
+    - Automatically scales all continuous dimensions to integers based on decimal precision.
+    """
+    # Gather all numeric values to determine an appropriate integer scale
+    all_numbers: List[float] = [L, W]
+    for (l_i, w_i) in bins:
+        all_numbers.extend([l_i, w_i])
+    scale = _compute_scale_factor(all_numbers)
+
+    L_i = int(round(L * scale))
+    W_i = int(round(W * scale))
+    bins_i = [(int(round(l * scale)), int(round(w * scale))) for (l, w) in bins]
+
+    # Build CP-SAT model with rotation and NoOverlap2D in the scaled integer space
+    model = cp_model.CpModel()
+    num_bins = len(bins_i)
+
+    x_starts = []
+    y_starts = []
+    x_ends = []
+    y_ends = []
+    x_intervals = []
+    y_intervals = []
+    rot_vars = []
+    w_eff_vars = []
+    h_eff_vars = []
+
+    for i, (w, h) in enumerate(bins_i):
+        r = model.NewBoolVar(f"r_{i}")
+        rot_vars.append(r)
+
+        w_eff = model.NewIntVar(min(w, h), max(w, h), f"w_eff_{i}")
+        h_eff = model.NewIntVar(min(w, h), max(w, h), f"h_eff_{i}")
+        w_eff_vars.append(w_eff)
+        h_eff_vars.append(h_eff)
+
+        model.Add(w_eff == w).OnlyEnforceIf(r.Not())
+        model.Add(h_eff == h).OnlyEnforceIf(r.Not())
+        model.Add(w_eff == h).OnlyEnforceIf(r)
+        model.Add(h_eff == w).OnlyEnforceIf(r)
+
+        x_start = model.NewIntVar(0, L_i, f"x_start_{i}")
+        y_start = model.NewIntVar(0, W_i, f"y_start_{i}")
+        x_end = model.NewIntVar(0, L_i, f"x_end_{i}")
+        y_end = model.NewIntVar(0, W_i, f"y_end_{i}")
+
+        model.Add(x_end == x_start + w_eff)
+        model.Add(y_end == y_start + h_eff)
+
+        model.Add(x_end <= L_i)
+        model.Add(y_end <= W_i)
+
+        x_starts.append(x_start)
+        y_starts.append(y_start)
+        x_ends.append(x_end)
+        y_ends.append(y_end)
+
+        x_iv = model.NewIntervalVar(x_start, w_eff, x_end, f"x_iv_{i}")
+        y_iv = model.NewIntervalVar(y_start, h_eff, y_end, f"y_iv_{i}")
+        x_intervals.append(x_iv)
+        y_intervals.append(y_iv)
+
+    model.AddNoOverlap2D(x_intervals, y_intervals)
+
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+
+    PackingSol = {}
+    IsFeasible = status == cp_model.OPTIMAL or status == cp_model.FEASIBLE
+
+    if IsFeasible:
+        inv_scale = 1.0 / float(scale)
+        for i in range(num_bins):
+            x_val = solver.Value(x_starts[i]) * inv_scale
+            y_val = solver.Value(y_starts[i]) * inv_scale
+            PackingSol[i] = [x_val, y_val]
+
+    return IsFeasible, PackingSol
+
+
+def check_feasi_disjunctive(L: float, W: float, grid_size: float, bins: List[Tuple[float, float]]):
+    """
+    Disjunctive non-overlap feasibility check with rotation booleans.
+
+    - Keeps same output format as check_feasi: (IsFeasible: bool, PackingSol: Dict[int, List[float]]).
+    - Ignores grid_size internally; all dimensions are scaled to integers based on decimal precision.
+    """
+    # Determine integer scale for all values
+    all_numbers: List[float] = [L, W]
+    for (l_i, w_i) in bins:
+        all_numbers.extend([l_i, w_i])
+    scale = _compute_scale_factor(all_numbers)
+
+    L_i = int(round(L * scale))
+    W_i = int(round(W * scale))
+    bins_i = [(int(round(l * scale)), int(round(w * scale))) for (l, w) in bins]
+
+    model = cp_model.CpModel()
+    n = len(bins_i)
+
+    # Variables
+    x = []
+    y = []
+    r = []  # rotation
+
+    w_eff = []
+    h_eff = []
+
+    for j in range(n):
+        x_j = model.NewIntVar(0, L_i, f"x_{j}")
+        y_j = model.NewIntVar(0, W_i, f"y_{j}")
+        r_j = model.NewBoolVar(f"r_{j}")
+        x.append(x_j)
+        y.append(y_j)
+        r.append(r_j)
+
+        w_j, h_j = bins_i[j]
+        w_eff_j = model.NewIntVar(min(w_j, h_j), max(w_j, h_j), f"w_eff_{j}")
+        h_eff_j = model.NewIntVar(min(w_j, h_j), max(w_j, h_j), f"h_eff_{j}")
+        w_eff.append(w_eff_j)
+        h_eff.append(h_eff_j)
+
+        model.Add(w_eff_j == w_j).OnlyEnforceIf(r_j.Not())
+        model.Add(h_eff_j == h_j).OnlyEnforceIf(r_j.Not())
+        model.Add(w_eff_j == h_j).OnlyEnforceIf(r_j)
+        model.Add(h_eff_j == w_j).OnlyEnforceIf(r_j)
+
+        # Containment
+        model.Add(x_j + w_eff_j <= L_i)
+        model.Add(y_j + h_eff_j <= W_i)
+
+    # Pairwise non-overlap (disjunctive: left/right/above/below)
+    for i in range(n):
+        for j in range(i + 1, n):
+            left = model.NewBoolVar(f"left_{i}_{j}")
+            right = model.NewBoolVar(f"right_{i}_{j}")
+            above = model.NewBoolVar(f"above_{i}_{j}")
+            below = model.NewBoolVar(f"below_{i}_{j}")
+
+            model.Add(x[i] + w_eff[i] <= x[j]).OnlyEnforceIf(left)
+            model.Add(x[j] + w_eff[j] <= x[i]).OnlyEnforceIf(right)
+            model.Add(y[i] + h_eff[i] <= y[j]).OnlyEnforceIf(above)
+            model.Add(y[j] + h_eff[j] <= y[i]).OnlyEnforceIf(below)
+
+            model.AddBoolOr([left, right, above, below])
+
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+
+    PackingSol = {}
+    IsFeasible = status == cp_model.OPTIMAL or status == cp_model.FEASIBLE
+
+    if IsFeasible:
+        inv_scale = 1.0 / float(scale)
+        for j in range(n):
+            x_val = solver.Value(x[j]) * inv_scale
+            y_val = solver.Value(y[j]) * inv_scale
+            PackingSol[j] = [x_val, y_val]
 
     return IsFeasible, PackingSol
 
