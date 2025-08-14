@@ -17,13 +17,16 @@ pip install ortools matplotlib pandas numpy tqdm
 ```
 
 ### 2. 目录结构（关键）
-- `utils/`：工具与求解脚本
-  - `FeasibilityCheck.py`：
-    - `check_feasi(L, W, grid_size, bins)`：原始“离散网格”可行性检查器
-    - `check_feasi_interval(L, W, grid_size, bins)`：新增“区间 + NoOverlap2D + 旋转”检查器（自动小数精度整型缩放）
-  - `BFS.py`、`DFS.py`、`Repetition.py`：对子集进行可行性枚举、剪枝与记录（支持命令行选择求解器）
-  - `tools.py`：JSON 读写、分辨率计算、并行执行
-  - `CSV2json.py`、`DataformTransfer.py`：数据格式转换工具
+- `mis/`（核心库）
+  - `solvers/`: `grid.py`、`interval.py`、`disjunctive.py`（三种求解方法）
+  - `strategies/`: 组合生成与剪枝（`combinations.py`、`pruning.py`）
+  - `io/`: 实例读取与输出（`reader.py` 等）
+  - `utils/`: 通用工具（`geometry.py`、`scaling.py`）
+  - `runner.py`: 并行执行、剪枝、结果写盘
+- `utils/`（实用脚本）
+  - 数据转换：`csv_to_json.py`、`data_transfer.py`
+  - 求解入口脚本：`solve/BFS.py`、`solve/DFS.py`、`solve/Repetition.py`
+  - 其它：`tools.py`（JSON 读写、分辨率计算）、`Logcount.py`
 - `TestInstances/`：测试实例数据（`n15`、`n20` 等）
 
 ### 3. 数据格式（JSON）
@@ -38,11 +41,11 @@ pip install ortools matplotlib pandas numpy tqdm
 ### 4. 数据转换
 1) TXT → JSON：
 - 文本行格式按 `utils/tools.py::convert_txt_to_json` 约定
-- 批量转换入口：`utils/DataformTransfer.py::convert_txt_json(input_folder, output_folder)`
+- 批量转换入口：`utils/data_transfer.py::convert_txt_json(input_folder, output_folder)`
 
 示例（请先按需修改路径）：
 ```python
-from utils.DataformTransfer import convert_txt_json
+from utils.data_transfer import convert_txt_json
 convert_txt_json(
     "/Users/tree/project-dom/git-tree/Data-prepare-for-MIS/TestInstances/txt",
     "/Users/tree/project-dom/git-tree/Data-prepare-for-MIS/TestInstances/json"
@@ -50,57 +53,73 @@ convert_txt_json(
 ```
 
 2) CSV → JSON：
-- 使用 `utils/CSV2json.py`：
+- 使用 `utils/csv_to_json.py`：
 ```bash
-python /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/utils/CSV2json.py
+python /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/utils/csv_to_json.py
 ```
 （脚本内含基础目录示例，按需替换 `input_base_dir/output_base_dir`）
 
-### 5. 求解运行
-三种驱动脚本均支持命令行选择求解器：
-- `--solver grid`：原离散网格模型（`check_feasi`）
-- `--solver interval`：区间 + NoOverlap2D + 旋转（`check_feasi_interval`）
-- `--solver disjunctive`：显式左/右/上/下析取不重叠模型（`check_feasi_disjunctive`）
+### 5. 顶层主入口（推荐）
+自顶层运行 `main.py`，实现“数据准备（TXT/CSV→JSON）”与“求解（并行+剪枝，BFS/DFS+三求解器）”分离。
 
-并行执行默认使用 CPU 进程池（在 `utils/tools.py::Check_grid_Feasibility_parallel`）。
-
-#### 5.1 BFS
+#### 5.1 数据准备
+- TXT → JSON：
 ```bash
-python /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/utils/BFS.py \
-  --solver interval \
-  --instances n15
+python /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/main.py prepare --from txt \
+  --in /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/TestInstances/txt \
+  --out /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/TestInstances/json
 ```
 
-#### 5.2 DFS
+- CSV → JSON：
 ```bash
-python /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/utils/DFS.py \
-  --solver interval \
-  --instances n15
+python /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/main.py prepare --from csv \
+  --in /path/to/SingleAM_data \
+  --out /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/TestInstances/json/SingleAM_data \
+  --n-values 15 20 30 40
 ```
 
-#### 5.3 Repetition（多数据集批量）
+不提供 `--n-values` 时，脚本会尝试自动遍历顶层 CSV 文件，并探测 `n=15` 这类子目录批量转换。
+
+#### 5.2 求解运行（并行 + 剪枝）
+三种求解器均可选择：
+- `--solver grid`：原离散网格模型
+- `--solver interval`：区间 + NoOverlap2D + 旋转
+- `--solver disjunctive`：显式左/右/上/下析取不重叠模型
+
+策略可选：`--strategy bfs|dfs|all`。
+
+示例：
 ```bash
-python /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/utils/Repetition.py \
+python /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/main.py solve \
+  --strategy bfs \
   --solver interval \
-  --instances 10 15 n20
+  --instances n15 \
+  --processes 8 \
+  --timeout 300
 ```
 
-`--instances` 参数为 `TestInstances/` 下的子目录名。
+或指定目录：
+```bash
+python /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/main.py solve \
+  --strategy dfs \
+  --solver disjunctive \
+  --instances-dir /Users/tree/project-dom/git-tree/Data-prepare-for-MIS/TestInstances/n15
+```
 
 ### 6. 结果输出
-输出位于相对路径 `../output/` 下（以脚本运行目录为基准）：
-- 组织形式：`../output/{code_name}{run_id}/{instance_basename}/{machine_id}/`
+输出位于与 `main.py` 同级的 `output/` 目录下：
+- 组织形式：`output/{code_name}{run_id}/{instance_basename}/{machine_id}/`
   - `previous_log.json`：已成功组合的复用缓存
   - `{L}x{W}-{grid}.json`：该分辨率的求解记录（含时间、是否可行、解）
   - `{L}x{W}-{grid}-pruned.json`：剪枝日志
 
-注意：为保持兼容性，输出 JSON 结构未被修改。
+注意：输出 JSON 结构未被修改。
 
 ### 7. 建议与注意
 - `grid` 解法依赖 `grid_size` 与边长的整除关系；`interval` 解法对小数尺寸自动缩放并允许旋转，常用于连续坐标布局。
 - 大实例耗时可观，建议先在 `n15` 小规模数据上验证。
-- 若需要限制并行度，可在 `tools.py::Check_grid_Feasibility_parallel` 中自定义 `Pool(processes=...)`。
+- 并行度可通过 `--processes` 参数控制。
 
 ### 8. 致谢
-`utils/FeasibilityCheckMain_R.py` 中的思路已被抽象为 `check_feasi_interval` 并集成到当前框架，使用时仅需通过 `--solver interval` 选择新模型。
+区间+NoOverlap2D 的思路已抽象为 `check_feasi_interval` 并集成到当前框架，使用时仅需通过 `--solver interval` 选择该模型。
 

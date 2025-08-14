@@ -1,17 +1,10 @@
 import math
-import multiprocessing  # 导入multiprocessing模块
-from multiprocessing import Pool
 import os
 
-def load_previous_log(machine_dir):
-    """
-    加载或初始化指定机器目录下的 previous_log.json。
-    """
-    log_path = os.path.join(machine_dir, "previous_log.json")
-    if os.path.exists(log_path):
-        with open(log_path, 'r') as json_file:
-            return json.load(json_file), log_path
-    return {}, log_path
+"""
+Legacy utilities kept for data IO compatibility. Parallel execution and previous_log
+are now handled in mis.runner and mis.io.outputs.
+"""
 
 
 def json_read(json_path):
@@ -195,14 +188,4 @@ def calculate_resolution(L, W):
     return resolution_list
 
 
-def Check_grid_Feasibility_parallel(input_folder, task_name, num_run, extra_args=None):
-    # 获取文件列表
-    files = os.listdir(input_folder)
-    # 创建任务列表，确保包含所有必需的参数
-    if extra_args is None:
-        extra_args = ()
-    tasks = [(file, num_run, input_folder, *extra_args) for file in files]
-
-    # 使用进程池并行处理
-    with Pool() as pool:
-        pool.starmap(task_name, tasks)
+# Note: Check_grid_Feasibility_parallel is deprecated and replaced by mis.runner.run_instances
