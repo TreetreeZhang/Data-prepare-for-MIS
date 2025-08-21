@@ -27,6 +27,7 @@ pip install ortools matplotlib pandas numpy tqdm
   - 数据转换：`csv_to_json.py`、`data_transfer.py`
   - 求解入口脚本：`solve/BFS.py`、`solve/DFS.py`、`solve/Repetition.py`
   - 其它：`tools.py`（JSON 读写、分辨率计算）、`Logcount.py`
+- `task/`：离线批量任务/实例生成工具（见 `task/README.md`）
 - `TestInstances/`：测试实例数据（`n15`、`n20` 等）
 
 ### 3. 数据格式（JSON）

@@ -34,3 +34,4 @@ build/
 *.egg-info/ 
 
 output/
+tasks/data/
